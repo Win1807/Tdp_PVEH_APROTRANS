@@ -1,0 +1,21 @@
+{
+  "generation": [
+    {
+      "templateId": "servicecatalog.connectivityComponent",
+      "templateVersion": "0.0.0",
+      "dateTimeStamp": "Wed, 14 Feb 2018 20:39:44 GMT"
+    }
+  ],
+  "mockpreview": {
+    "mockUri": "/ODP_PORTALES_DEV/odata/SAP/ZSCP_REPUESTOS_SRV",
+    "metadataFilePath": "",
+    "loadJSONFiles": false,
+    "loadCustomRequests": false,
+    "mockRequestsFilePath": ""
+  },
+  "hcpdeploy": {
+    "account": "d85e9224f",
+    "name": "tdppvehaprotrans",
+    "lastVersionWeTriedToDeploy": "1.0.0"
+  }
+}

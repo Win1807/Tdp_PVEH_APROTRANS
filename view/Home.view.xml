@@ -1,0 +1,576 @@
+<mvc:View 
+    controllerName="sap.ui.veh_aprotrans.controller.Home" 
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:u="sap.ui.unified"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:c="sap.ui.core"
+    xmlns:m="sap.ui.table"
+    xmlns="sap.m"
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+	xmlns:smartTable="sap.ui.comp.smarttable"
+	xmlns:smartField="sap.ui.comp.smartfield"
+	xmlns:smartVariantManagement="sap.ui.comp.smartvariants"
+	xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+    <Page title="Aprobación de Transferencias" showNavButton="true" navButtonPress="onNavBack">
+	<Panel 
+    expandable="true" 
+    expanded="true" 
+    width="auto"
+    headerText="Búsqueda">
+        <f:Form id="FORMULARIO" editable="true">
+        <f:layout>
+            <f:ResponsiveGridLayout
+                labelSpanXL="5"
+                labelSpanL="5"
+                labelSpanM="5"
+                labelSpanS="12"
+                adjustLabelSpan="false"
+                emptySpanXL="0"
+                emptySpanL="0"
+                emptySpanM="0"
+                emptySpanS="0"
+                columnsXL="2"
+                columnsL="2"
+                columnsM="2"
+                columnsS="1"
+                singleContainerFullSize="false" />
+
+        </f:layout>
+        <f:formContainers>
+            <f:FormContainer title="">
+                <f:formElements>
+                    <f:FormElement label="F. Reserva Inicio" required="true" >
+                        <f:fields>
+                            <DatePicker
+                                id="fechaini"
+                                change="handleChange"
+                                displayFormat="dd.MM.yyyy"
+                                valueFormat="yyyy-MM-dd"
+                                placeholder="Ingrese la fecha inicial"
+                                requerid="true">
+                                <layoutData>
+                                    <l:GridData span="XL4 L4 M12 S12" />
+                                </layoutData>
+                             </DatePicker>
+                        </f:fields>
+                    </f:FormElement>
+                    <f:FormElement label="Serie">
+                        <f:fields>
+                            <MultiInput id="serie" valueHelpRequest="buscaSerie" enableMultiLineMode="true" >
+                                <layoutData>
+                                    <l:GridData span="XL4 L4 M12 S12" />
+                                </layoutData>
+                            </MultiInput>
+                        </f:fields>
+                    </f:FormElement>
+                </f:formElements>
+            </f:FormContainer>
+
+            <f:FormContainer title="">
+                <f:formElements>
+                	<f:FormElement label="F. Reserva Fin">
+                        <f:fields>
+                            <DatePicker
+                            id="fechafin"
+                            placeholder="Ingrese la fecha final"
+                            displayFormat="dd.MM.yyyy"
+                            change="handleChange"
+                            valueFormat="yyyy-MM-dd"
+			                requerid="true">
+                            	<layoutData>
+									<l:GridData span="XL4 L4 M12 S12" />
+								</layoutData>
+							</DatePicker>
+                        </f:fields>
+                    </f:FormElement>
+                    <f:FormElement label="">
+                        <f:fields>
+                            <Button 
+				                type="Accept"
+				                press="Buscar"
+				                text="Iniciar Búsqueda"
+				                icon="sap-icon://search"
+				                >
+                            	<layoutData>
+									<l:GridData span="XL4 L4 M12 S12" />
+								</layoutData>
+							 </Button>
+                        </f:fields>
+                    </f:FormElement>
+                </f:formElements>
+            </f:FormContainer>
+
+        </f:formContainers>
+    </f:Form>
+    </Panel>
+    <!--   <l:VerticalLayout
+        class="sapUiContentPadding"
+        width="100%">  
+            <HBox>
+                <Button type="Accept"
+                        text="Accept"
+                        press="onPress"
+                        ariaDescribedBy="acceptButtonDescription genericButtonDescription">
+                    <layoutData>
+                        <FlexItemData growFactor="1" />
+                    </layoutData>
+                </Button>
+                <Button type="Reject"
+                        text="Reject"
+                        press="onPress"
+                        ariaDescribedBy="rejectButtonDescription genericButtonDescription">
+                    <layoutData>
+                        <FlexItemData growFactor="" />
+                    </layoutData>
+                </Button>
+
+            </HBox>
+    </l:VerticalLayout> -->
+
+            <!--<HeaderContainer scrollStep="400" class="sapUiSmallMarginBegin">
+                
+                    <Button type="Accept" text="Aprobar" icon="sap-icon://accept" />
+                    <Button type="Reject" text="Rechazar" icon="sap-icon://decline"/>
+                    <Button type="Transparent" text="Export" press="pressexportar" icon="sap-icon://download" />
+                
+            </HeadersContainer>-->
+            <HBox>
+            <smartVariantManagement:SmartVariantManagement
+                id="pageVariantId"
+                class="sapUiTinyMarginTop sapUiTinyMarginEnd sapUiTinyMarginBegin"
+                persistencyKey="PageVariantPKey"/>
+             </HBox>   
+             
+            <l:HorizontalLayout>
+                    <Label class="sapUiTinyMarginTop sapUiTinyMarginEnd sapUiTinyMarginBegin" text="Cantidad a mostrar:" />
+                    <Select id="sShow" selectKey="3" change="onShow">
+                        <c:ListItem key="3" text="3"/>
+                        <c:ListItem key="10" text="10"/>
+                        <c:ListItem key="25" text="25"/>
+                        <c:ListItem key="50" text="50"/>
+                        <c:ListItem key="100" text="100"/>
+                    </Select>
+                    <Button 
+                    id="btnSiguiente" icon="sap-icon://navigation-right-arrow"  iconFirst="false" type="Transparent"  text="Siguiente"  press="goNext"/>
+                    <Button 
+                    id="btnAnterior" icon="sap-icon://navigation-left-arrow"  type="Transparent"  text="Anterior"  press="goPrevious"/>
+            </l:HorizontalLayout>
+            
+            <ScrollContainer horizontal="true">
+                      <smartTable:SmartTable
+                        id="tblVisualizarT"
+                        smartFilterId="smartFilterBar"
+                        smartVariant="pageVariantId"
+                        tableType="ResponsiveTable"
+                        entitySet="RPT_TRANSUNIDADESSet"
+                        useTablePersonalisation="true"
+                        dataReceived="onLoadT"
+                        beforeRebindTable="onBeforeTBL"
+                        useExportToExcel="true"
+                        enableAutoBinding="false"
+                        customData:useSmartField="false"
+                        smartSelectionMode="Single"
+                        showRowCount="true"
+                        persistencyKey="SmartTablePKey"
+                        ignoreFromPersonalisation="Statust,Action"
+                        requestAtLeastFields ="Statust,Action"
+                        >
+                                <smartTable:customToolbar> 
+                        <OverflowToolbar design="Transparent"> 
+                                   <ToolbarSpacer/> 
+                                   <Button press="onVolver" icon="sap-icon://close-command-field" tooltip="Volver" id="botonVolver"/>
+                        </OverflowToolbar> 
+                       </smartTable:customToolbar>
+                        <Table>
+                            <columns>
+                                <Column width="7rem"  hAlign="Center">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Lote",
+                                        "leadingProperty":"Lote"}' />
+                                    </customData>
+                                    <Label text="Serie" />
+                                </Column>
+                                <Column width="9rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "ClienteA",
+                                        "leadingProperty":"ClienteA"}' />
+                                    </customData>
+                                    <Label text="Cliente A" />
+                                </Column>
+                                <Column width="12rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "ClienteB",
+                                        "leadingProperty":"ClienteB"}' />
+                                    </customData>
+                                    <Label text="Cliente B" />
+                                </Column>
+                                <Column width="7rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "FecPrefe",
+                                        "leadingProperty":"FecPrefe"}' />
+                                    </customData>
+                                    <Label text="Fecha Pref.Entr." />
+                                </Column>
+                                <Column width="6rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Validode",
+                                        "leadingProperty":"Validode"}' />
+                                    </customData>
+                                    <Label text="Validez de" />
+                                </Column>
+                                <Column width="6rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Validoa",
+                                        "leadingProperty":"Validoa"}' />
+                                    </customData>
+                                    <Label text="Validez a" />
+                                </Column>
+                                <Column width="7rem">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Usuario",
+                                        "leadingProperty":"Usuario"}' />
+                                    </customData>
+                                    <Label text="Usuario" />
+                                </Column>
+                                <Column width="7rem" hAlign="End">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Statust",
+                                        "leadingProperty":"Statust"}' />
+                                    </customData>
+                                    <Label text="Status" />
+                                </Column>
+                                <Column width="7rem" hAlign="End">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Fecha",
+                                        "leadingProperty":"Fecha"}' />
+                                    </customData>
+                                    <Label text="Fecha" />
+                                </Column>
+                                <Column width="7rem" hAlign="End">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Hora",
+                                        "leadingProperty":"Hora"}' />
+                                    </customData>
+                                    <Label text="Hora" />
+                                </Column>
+                                <!-- <Column width="7rem" hAlign="End" id="ColVisible1">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Statust",
+                                        "leadingProperty":"Statust"}' />
+                                    </customData>
+                                    <Label text="Status Desc" />
+                                </Column>
+                                <Column width="7rem" hAlign="End" id="ColVisible2">
+                                    <customData> 
+                                        <c:CustomData key="p13nData"
+                                        value='\{
+                                        "columnKey": "Action",
+                                        "leadingProperty":"Action"}' />
+                                    </customData>
+                                    <Label text="Acción" />
+                                </Column> -->
+                            </columns>
+                            <items>
+                                <ColumnListItem>
+                                    <cells>
+                                        <!--Lote,ClienteA,ClienteB,FecPrefe,Validode,Validoa,Usuario,Status,Fecha,Hora-->
+                                        <Text text="{path: 'Lote', formatter: '.formatter.borrar0izalfanumerico'}"  /> 	
+                                        <Text text="{ClienteA}" /> 
+                                        <Text text="{ClienteB}" />
+                                        <Text text="{path: 'FecPrefe', formatter: '.formatter.fecha'}" />
+                                        <Text text="{path: 'Validode', formatter: '.formatter.fecha'}" />
+                                        <Text text="{path: 'Validoa', formatter: '.formatter.fecha'}" />
+                                        <Text text="{Usuario}" />
+                                        <Text text="{Statust}" />
+                                        <Text text="{path: 'Fecha', formatter: '.formatter.fecha'}" />
+                                        <Text text="{path: 'Hora', formatter: '.formatter.time'}" />
+                                        <!-- <Text text="{Statust}" />  -->
+                                        <!-- <Text text="{Action}" /> -->
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </smartTable:SmartTable>
+            </ScrollContainer>
+            <smartTable:SmartTable
+                id="tblVisualizarM"
+                smartFilterId="smartFilterBar"
+                tableType="ResponsiveTable"
+                entitySet="RPT_TRANSUNIDADESSet"
+                useTablePersonalisation="true"
+                dataReceived="onLoadM"
+                beforeRebindTable="onBeforeTBL"
+                initiallyVisibleFields="Lote,FecPrefe,Validode,Validoa,Fecha,Hora,Statust,Action"
+                useExportToExcel="true"
+                enableAutoBinding="false"
+                customData:useSmartField="false"
+                smartSelectionMode="Single"
+                showRowCount="false"
+                demandPopin="true">
+
+                <Table>
+                        <columns>
+                            <Column width="4rem"  hAlign="Center">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Lote",
+                                                        "leadingProperty":"Lote"}' />
+                                            </customData>
+                                        <Label text="Documento venta" />
+                            </Column>
+                            <Column width="9rem">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "FecPrefe",
+                                                        "leadingProperty":"FecPrefe"}' />
+                                            </customData>
+                                        <Label text="Posición" />
+                            </Column>
+                            <Column width="7rem">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Validode",
+                                                        "leadingProperty":"Validode"}' />
+                                            </customData>
+                                        <Label text="Concesionario" />
+                            </Column>
+                            <Column width="9rem">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Validoa",
+                                                        "leadingProperty":"Validoa"}' />
+                                            </customData>
+                                        <Label text="Fecha documento" />
+                            </Column>
+                            <Column width="6rem">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Fecha",
+                                                        "leadingProperty":"Fecha"}' />
+                                            </customData>
+                                        <Label text="Creado por" />
+                            </Column>
+                            <Column width="6rem">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Hora",
+                                                        "leadingProperty":"Hora"}' />
+                                            </customData>
+                                        <Label text="Creado por" />
+                            </Column>
+                            <Column width="0rem" hAlign="End" id="ColdVis3">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Statust",
+                                                        "leadingProperty":"Statust"}' />
+                                            </customData>
+                                        <Label text="" />
+                            </Column>
+                            <Column width="0rem" hAlign="End" id="ColdVis4">
+                                        <customData> 
+                                            <c:CustomData key="p13nData"
+                                                value='\{
+                                                        "columnKey": "Action",
+                                                        "leadingProperty":"Action"}' />
+                                            </customData>
+                                        <Label text="" />
+                            </Column>
+                        </columns>
+                        <items>
+                                    <ColumnListItem type="Navigation" press="onPressItem">
+                                        <cells> 
+                                        <!--Lote,FecPrefe,Validode,Validoa,Fecha,Hora-->
+                                           <Text text="{Lote}" /> 	
+                                           <Text text="{
+                                                path: 'FecPrefe',
+                                                formatter: '.formatter.fecha'
+                                              }" />
+                                           <Text text="{
+                                                path: 'Validode',
+                                                formatter: '.formatter.fecha'
+                                              }" />
+                                           <Text text="{
+                                                path: 'Validoa',
+                                                formatter: '.formatter.fecha'
+                                              }" />
+                                           <Text text="{
+                                                path: 'Fecha',
+                                                formatter: '.formatter.fecha'
+                                              }" />
+                                           <Text text="{
+                                                path: 'Hora',
+                                                formatter: '.formatter.time'
+                                              }" />
+                                           <Text text="{Statust}" />		
+											<Text text="{Action}" />
+                                        </cells>
+                                    </ColumnListItem>
+                        </items>
+                    </Table>
+
+            </smartTable:SmartTable>
+       <!-- <l:VerticalLayout
+        class="sapUiContentPadding"
+        width="100%">
+                <m:Table id="table1"
+                selectionMode="Multiselect"
+                visibleRowCount="6"
+                ariaLabelledBy="title"
+                rows="{path:'/'}">   
+                <m:columns>
+                    <m:Column width="10rem" sortProperty="TIPODOCUMENTO"
+                          filterProperty="TIPODOCUMENTO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Tipo documento" />
+                        <m:template>
+                            <Label text="{TIPODOCUMENTO}" wrapping="false" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="9rem" sortProperty="REFERENCIA"
+                          filterProperty="REFERENCIA" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Referencia" />
+                        <m:template>
+                            <Label text="{REFERENCIA}" wrapping="false" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="8rem" sortProperty="NRODOCUMENTO"
+                          filterProperty="NRODOCUMENTO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="N° Documento" />
+                        <m:template>
+                            <Text text="{NRODOCUMENTO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="FECEMISION"
+                          filterProperty="FECEMISION" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Fecha emisión " />
+                        <m:template>
+                            <Label text="{FECEMISION}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="9rem" sortProperty="FECVENCIMIENTO"
+                          filterProperty="FECVENCIMIENTO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Fecha vencimiento" />
+                        <m:template>
+                            <Label text="{FECVENCIMIENTO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="5rem" sortProperty="MONEDA"
+                          filterProperty="MONEDA" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Moneda" />
+                        <m:template>
+                            <Label text="{MONEDA}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="IMPMONEDA"
+                          filterProperty="IMPMONEDA" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Imp. Moneda" />
+                        <m:template>
+                            <Label text="{IMPMONEDA}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="IMPPAGADO"
+                          filterProperty="IMPPAGADO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Imp. Pagado" />
+                        <m:template>
+                            <Label text="{IMPPAGADO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="SALDO"
+                          filterProperty="SALDO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Saldo" />
+                        <m:template>
+                            <Label text="{SALDO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="FECHAPAGO"
+                          filterProperty="FECHAPAGO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Fecha Pago" />
+                        <m:template>
+                            <Label text="{FECHAPAGO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="10rem" sortProperty="NRODEPOSITO"
+                          filterProperty="NRODEPOSITO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Nro. Depósito y Banco" />
+                        <m:template>
+                            <Label text="{NRODEPOSITO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="9rem" sortProperty="VERIFICACION"
+                          filterProperty="VERIFICACION" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Verificación crédito" />
+                        <m:template>
+                            <Label text="{VERIFICACION}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="STATUS"
+                          filterProperty="STATUS" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Status" />
+                        <m:template>
+                            <Label text="{STATUS}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="7rem" sortProperty="SOLICITANTE"
+                          filterProperty="SOLICITANTE" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Solicitante" />
+                        <m:template>
+                            <Label text="{SOLICITANTE}" />
+                        </m:template>
+                    
+                    </m:Column>
+                    <m:Column width="9rem" sortProperty="LINEADENEGOCIO"
+                          filterProperty="LINEADENEGOCIO" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Línea de Negocio" />
+                        <m:template>
+                            <Label text="{LINEADENEGOCIO}" />
+                        </m:template>
+                    </m:Column>
+                    <m:Column width="5rem" sortProperty="LINEA"
+                          filterProperty="LINEA" showFilterMenuEntry="true" showSortMenuEntry="true">
+                        <Label text="Línea" />
+                        <m:template>
+                            <Label text="{LINEA}" />
+                        </m:template>
+                    </m:Column>
+                </m:columns>
+            </m:Table>
+        </l:VerticalLayout>-->
+
+         <footer>
+            <OverflowToolbar>
+                    <ToolbarSpacer/>
+                <Button type="Accept" text="Aprobar" icon="sap-icon://accept" press="OnAccept"/>
+                <Button type="Reject" text="Rechazar" icon="sap-icon://decline" press="onDecline"/>
+            </OverflowToolbar>
+        </footer>
+    </Page>
+</mvc:View>

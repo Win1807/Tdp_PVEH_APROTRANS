@@ -1,0 +1,40 @@
+{
+  "welcomeFile": "index.html",
+  "routes": [
+    {
+      "path": "/resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/resources"
+      },
+      "description": "SAPUI5 Resources"
+    },
+    {
+      "path": "/test-resources",
+      "target": {
+        "type": "service",
+        "name": "sapui5",
+        "entryPath": "/test-resources"
+      },
+      "description": "SAPUI5 Test Resources"
+    },
+    {
+      "path": "/SRV_RESTVEHICULOS",
+      "target": {
+        "type": "destination",
+        "name": "SRV_RESTVEHICULOS",
+        "entryPath": "/"
+      },
+      "description": "SRV_RESTVEHICULOS"
+    },
+    {
+      "path": "/OData_Vehiculos",
+      "target": {
+        "type": "destination",
+        "name": "ODP_PORTALES_DEV"
+      },
+      "description": "ODP_PORTALES_DEV"
+    }
+  ]
+}
